@@ -1,40 +1,57 @@
-const options = {
-	method: 'GET',
-	headers: {
-		'X-RapidAPI-Key': '835e60852fmsh534e5c7579d80a1p1cabeajsn3f707323d070',
-		'X-RapidAPI-Host': 'weather-by-api-ninjas.p.rapidapi.com'
-	}
-};
-const getWeather = (city)=>{
-	cityName.innerHTML = city
-fetch('https://weather-by-api-ninjas.p.rapidapi.com/v1/weather?city=' + city, options)
-	.then(response => response.json())
-	.then((response) => {
+const apiKey = 'e57125c284ba257dcdd82abfec01cbcb'; // Replace with your OpenWeatherMap API key
 
-		console.log(response)
-		// cloud_pct.innerHTML = response.cloud_pct
-		temp.innerHTML = response.temp
-		temp2.innerHTML = response.temp
-		feels_like.innerHTML = response.feels_like
-		humidity.innerHTML = response.humidity
-		humidity2.innerHTML = response.humidity
-		min_temp.innerHTML = response.min_temp
-		max_temp.innerHTML = response.max_temp
-		wind_speed.innerHTML = response.wind_speed
-		wind_speed2.innerHTML = response.wind_speed
-		wind_degrees.innerHTML = response.wind_degrees
-		sunrise.innerHTML = response.sunrise
-		sunset.innerHTML = response.sunset
-	})
-	.catch(err => console.error(err));
+const getWeather = (city) => {
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+    
+    cityName.innerHTML = city;
+    
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('City not found');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log(data);
+            
+            // Update DOM elements with weather data
+            temp.innerHTML = Math.round(data.main.temp);
+            temp2.innerHTML = Math.round(data.main.temp);
+            feels_like.innerHTML = Math.round(data.main.feels_like);
+            humidity.innerHTML = data.main.humidity;
+            humidity2.innerHTML = data.main.humidity;
+            min_temp.innerHTML = Math.round(data.main.temp_min);
+            max_temp.innerHTML = Math.round(data.main.temp_max);
+            wind_speed.innerHTML = data.wind.speed;
+            wind_speed2.innerHTML = data.wind.speed;
+            wind_degrees.innerHTML = data.wind.deg;
+            
+            // Convert Unix timestamps to readable time
+            const sunriseTime = new Date(data.sys.sunrise * 1000);
+            const sunsetTime = new Date(data.sys.sunset * 1000);
+            sunrise.innerHTML = sunriseTime.toLocaleTimeString();
+            sunset.innerHTML = sunsetTime.toLocaleTimeString();
+            
+            // Update weather description and icon
+            const weatherIcon = document.getElementById('weather-icon');
+            weatherDescription.innerHTML = data.weather[0].description;
+            weatherIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+        })
+        .catch(err => {
+            console.error('Error fetching weather:', err);
+            // alert('Error fetching weather data. Please check the city name and try again.');
+        });
 }
-submit.addEventListener("click", (e)=>{
-	e.preventDefault()
-	getWeather(city.value)
-})
 
+// Event listener for form submission
+document.getElementById('submit').addEventListener("click", (e) => {
+    e.preventDefault();
+    const cityInput = document.getElementById('city');
+    getWeather(cityInput.value);
+});
 
-getWeather("Bhopal")
-
+// Initial load with default city
+getWeather("landon");
 
 
